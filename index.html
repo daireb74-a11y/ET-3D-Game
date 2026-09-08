@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E.T. Escape Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="startScreen" class="screen active">
+            <h1>🚲 E.T. ESCAPE 👽</h1>
+            <p>Help E.T. reach Elliot's bike!</p>
+            <p>Avoid the FBI agents and collect power-ups!</p>
+            <button onclick="startGame()" class="btn">START GAME</button>
+        </div>
+
+        <div id="gameScreen" class="screen">
+            <div id="gameCanvas"></div>
+            <div id="hud">
+                <div>Score: <span id="score">0</span></div>
+                <div>Health: <span id="health">3</span></div>
+                <div>Level: <span id="level">1</span></div>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="screen">
+            <h1>GAME OVER!</h1>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button onclick="startGame()" class="btn">PLAY AGAIN</button>
+            <button onclick="backToMenu()" class="btn">MAIN MENU</button>
+        </div>
+
+        <div id="winScreen" class="screen">
+            <h1>🎉 YOU WIN! 🎉</h1>
+            <p>E.T. reached the bike!</p>
+            <p>Score: <span id="winScore">0</span></p>
+            <button onclick="nextLevel()" class="btn">NEXT LEVEL</button>
+            <button onclick="backToMenu()" class="btn">MAIN MENU</button>
+        </div>
+
+        <div id="controlsInfo">
+            <p>📱 Tap/Click to move E.T. towards that spot</p>
+            <p>🎯 Collect ⭐ stars for points</p>
+            <p>⚠️ Avoid 🚗 FBI agents!</p>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
