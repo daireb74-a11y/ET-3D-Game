@@ -2,14 +2,14 @@
 let scene, camera, renderer, et, spaceship, ground;
 let fbiAgents = [];
 let powerUps = [];
-let stars = [];
 let gameState = {
     playing: false,
     score: 0,
     health: 3,
     level: 1,
     gameWidth: 200,
-    gameHeight: 200
+    gameHeight: 200,
+    etTarget: { x: 0, z: 0 }
 };
 
 function initThreeJS() {
@@ -24,11 +24,12 @@ function initThreeJS() {
     camera.lookAt(0, 0, 0);
 
     // Renderer setup
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const canvas = document.getElementById('canvas');
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowShadowMap;
-    document.getElementById('canvas').parentElement.replaceChild(renderer.domElement, document.getElementById('canvas'));
+    renderer.setPixelRatio(window.devicePixelRatio);
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -39,6 +40,7 @@ function initThreeJS() {
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.far = 500;
     scene.add(directionalLight);
 
     // Stars in background
@@ -237,6 +239,10 @@ function startGame() {
     gameState.score = 0;
     gameState.health = 3;
 
+    // Reset E.T. position
+    et.position.set(0, 0, 0);
+    gameState.etTarget = { x: 0, z: 0 };
+
     // Clear existing objects
     fbiAgents.forEach(agent => scene.remove(agent));
     powerUps.forEach(powerup => scene.remove(powerup));
@@ -262,16 +268,16 @@ function startGame() {
     updateHUD();
 }
 
-function updateET(targetX, targetZ) {
+function updateET() {
     const speed = 1;
-    const distance = Math.sqrt(targetX * targetX + targetZ * targetZ);
+    const dx = gameState.etTarget.x - et.position.x;
+    const dz = gameState.etTarget.z - et.position.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
     
     if (distance > speed) {
-        et.position.x += (targetX / distance) * speed;
-        et.position.z += (targetZ / distance) * speed;
-        
-        // Rotate ET to face direction
-        et.rotation.y = Math.atan2(targetX, targetZ);
+        et.position.x += (dx / distance) * speed;
+        et.position.z += (dz / distance) * speed;
+        et.rotation.y = Math.atan2(dx, dz);
     }
 }
 
@@ -373,6 +379,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 
     if (gameState.playing) {
+        updateET();
         updateFBIAgents();
         updatePowerUps();
         checkCollisions();
@@ -397,7 +404,7 @@ function onDocumentClick(event) {
     if (!gameState.playing) return;
     const targetX = (event.clientX / window.innerWidth - 0.5) * 200;
     const targetZ = (event.clientY / window.innerHeight - 0.5) * 200;
-    updateET(targetX, targetZ);
+    gameState.etTarget = { x: targetX, z: targetZ };
 }
 
 function onDocumentTouch(event) {
@@ -405,7 +412,7 @@ function onDocumentTouch(event) {
     const touch = event.touches[0];
     const targetX = (touch.clientX / window.innerWidth - 0.5) * 200;
     const targetZ = (touch.clientY / window.innerHeight - 0.5) * 200;
-    updateET(targetX, targetZ);
+    gameState.etTarget = { x: targetX, z: targetZ };
 }
 
 function onKeyDown(event) {
