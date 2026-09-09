@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E.T. Escape - 3D Game</title>
+    <title>E.T. Phone Home</title>
     <style>
         * {
             margin: 0;
@@ -39,7 +39,7 @@
             height: 100%;
             pointer-events: none;
         }
-        #startScreen, #gameOverScreen, #winScreen {
+        #startScreen, #gameOverScreen, #winScreen, #cutsceneScreen {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -52,7 +52,7 @@
             pointer-events: auto;
             z-index: 100;
         }
-        #startScreen.hidden, #gameOverScreen.hidden, #winScreen.hidden {
+        #startScreen.hidden, #gameOverScreen.hidden, #winScreen.hidden, #cutsceneScreen.hidden {
             display: none !important;
         }
         h1 {
@@ -156,6 +156,17 @@
         #gameOverScreen h1 {
             color: #ff4444;
         }
+        #cutsceneText {
+            font-size: 1.5em;
+            color: #ffff00;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+            animation: fadeInOut 3s ease-in-out infinite;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -163,10 +174,10 @@
         <canvas id="gameCanvas"></canvas>
         <div id="ui">
             <div id="startScreen">
-                <h1>🚀 E.T. ESCAPE 👽</h1>
-                <p>Help E.T. reach the spaceship!</p>
-                <p>Collect purple crystals for points</p>
-                <p>Red enemy cars are slow and easy to avoid</p>
+                <h1>🚲 E.T. PHONE HOME 👽</h1>
+                <p>Help E.T. reach Elliot's bike!</p>
+                <p>Avoid police and collect glowing hearts</p>
+                <p>Reach the bike for an EPIC ending!</p>
                 <button id="startBtn" onclick="startGame()">START GAME</button>
             </div>
             <div id="gameOverScreen" class="hidden">
@@ -174,10 +185,13 @@
                 <p>Final Score: <span id="finalScore">0</span></p>
                 <button id="restartBtn" onclick="startGame()">PLAY AGAIN</button>
             </div>
+            <div id="cutsceneScreen" class="hidden">
+                <div id="cutsceneText">🚲 Elliot picks up E.T. 🚲</div>
+            </div>
             <div id="winScreen" class="hidden">
-                <h1>🎉 YOU WIN! 🎉</h1>
+                <h1>🌙 YOU MADE IT! 🌙</h1>
                 <p>Score: <span id="winScore">0</span></p>
-                <button id="nextBtn" onclick="nextLevel()">NEXT LEVEL</button>
+                <button id="nextBtn" onclick="startGame()">PLAY AGAIN</button>
             </div>
             <div id="hud">
                 <div class="hud-line">
@@ -194,7 +208,7 @@
                 </div>
             </div>
             <div id="instructions">
-                🖱️ CLICK/TAP to move | 🚀 Reach GREEN spaceship | 💜 Collect PURPLE crystals | 🚗 AVOID RED cars
+                🖱️ CLICK/TAP to move | 🚲 Reach RED BIKE | 💜 Collect HEARTS | 🚔 AVOID POLICE
             </div>
         </div>
     </div>
@@ -202,10 +216,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene, camera, renderer;
-        let et, spaceship;
-        let enemies = [];
-        let powerups = [];
+        let et, bike, elliot;
+        let police = [];
+        let hearts = [];
         let gameRunning = false;
+        let inCutscene = false;
         let gameState = {
             score: 0,
             health: 3,
@@ -213,16 +228,13 @@
         };
 
         function init() {
-            // Scene with beautiful gradient
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0a1e4d);
             scene.fog = new THREE.Fog(0x0a1e4d, 500, 1200);
 
-            // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 50, 100);
 
-            // Renderer with high quality
             const canvas = document.getElementById('gameCanvas');
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -230,7 +242,6 @@
             renderer.shadowMap.type = THREE.PCFShadowShadowMap;
             renderer.setPixelRatio(window.devicePixelRatio);
 
-            // Better lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
 
@@ -242,10 +253,9 @@
             directionalLight.shadow.camera.far = 800;
             scene.add(directionalLight);
 
-            // Add stars
             addStarfield();
+            addMoon();
 
-            // Beautiful ground with gradient
             const groundGeometry = new THREE.PlaneGeometry(400, 400);
             const groundMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0x1a3a2d,
@@ -257,7 +267,6 @@
             ground.receiveShadow = true;
             scene.add(ground);
 
-            // Add glow effect ground
             const glowGeometry = new THREE.PlaneGeometry(400, 400);
             const glowMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0x00ff88,
@@ -271,19 +280,12 @@
             glowGround.position.y = 0.01;
             scene.add(glowGround);
 
-            // Create E.T.
             createET();
+            createBike();
+            createElliot();
+            createPolice();
+            createHearts();
 
-            // Create Spaceship
-            createSpaceship();
-
-            // Create initial enemies (MUCH SLOWER)
-            createEnemies();
-
-            // Create powerups
-            createPowerups();
-
-            // Game listeners
             document.addEventListener('click', moveET);
             document.addEventListener('touchstart', moveET);
             window.addEventListener('resize', onWindowResize);
@@ -311,10 +313,22 @@
             scene.add(starField);
         }
 
+        function addMoon() {
+            const moonGeometry = new THREE.SphereGeometry(30, 64, 64);
+            const moonMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffffee, 
+                emissive: 0xffffee,
+                emissiveIntensity: 0.3,
+                roughness: 0.8
+            });
+            const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+            moon.position.set(200, 300, -500);
+            scene.add(moon);
+        }
+
         function createET() {
             const group = new THREE.Group();
 
-            // Body with beautiful material
             const bodyGeometry = new THREE.SphereGeometry(2.5, 64, 64);
             const bodyMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0xcc8844,
@@ -328,14 +342,12 @@
             body.receiveShadow = true;
             group.add(body);
 
-            // Head
             const headGeometry = new THREE.SphereGeometry(2, 64, 64);
             const head = new THREE.Mesh(headGeometry, bodyMaterial);
             head.position.y = 3.5;
             head.castShadow = true;
             group.add(head);
 
-            // Glowing eyes
             const eyeGeometry = new THREE.SphereGeometry(0.8, 32, 32);
             const eyeMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0xff3333, 
@@ -358,7 +370,6 @@
             group.add(eyeLight1);
             group.add(eyeLight2);
 
-            // Glowing finger
             const fingerGeometry = new THREE.SphereGeometry(0.7, 32, 32);
             const fingerMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0xffff44, 
@@ -377,68 +388,110 @@
             scene.add(et);
         }
 
-        function createSpaceship() {
+        function createBike() {
             const group = new THREE.Group();
 
-            // Cone body
-            const bodyGeometry = new THREE.ConeGeometry(7, 25, 64);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x00ff88, 
-                emissive: 0x00cc66,
-                emissiveIntensity: 0.5,
-                metalness: 0.7,
-                roughness: 0.3
+            // Frame
+            const frameGeometry = new THREE.CylinderGeometry(0.3, 0.3, 8, 16);
+            const frameMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xcc3333, 
+                emissive: 0x990000,
+                emissiveIntensity: 0.4,
+                metalness: 0.8,
+                roughness: 0.2
             });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.castShadow = true;
-            body.receiveShadow = true;
-            group.add(body);
+            const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+            frame.position.y = 2;
+            group.add(frame);
 
-            // Bottom platform
-            const bottomGeometry = new THREE.CylinderGeometry(7, 7, 2, 64);
-            const bottom = new THREE.Mesh(bottomGeometry, bodyMaterial);
-            bottom.position.y = -13;
-            bottom.castShadow = true;
-            group.add(bottom);
+            // Wheels
+            const wheelGeometry = new THREE.CylinderGeometry(3, 3, 0.5, 32);
+            const wheelMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x222222,
+                roughness: 0.9
+            });
+            
+            const wheelFront = new THREE.Mesh(wheelGeometry, wheelMaterial);
+            wheelFront.rotation.z = Math.PI / 2;
+            wheelFront.position.set(4, 3, 0);
+            group.add(wheelFront);
 
-            // Glowing lights
-            const lightCount = 8;
-            for (let i = 0; i < lightCount; i++) {
-                const angle = (i / lightCount) * Math.PI * 2;
-                const radius = 8;
-                
-                const lightGeometry = new THREE.SphereGeometry(1, 32, 32);
-                const lightMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x00ffff, 
-                    emissive: 0x00ffff,
-                    emissiveIntensity: 1
-                });
-                const light = new THREE.Mesh(lightGeometry, lightMaterial);
-                light.position.set(Math.cos(angle) * radius, -5, Math.sin(angle) * radius);
-                group.add(light);
+            const wheelBack = new THREE.Mesh(wheelGeometry, wheelMaterial);
+            wheelBack.rotation.z = Math.PI / 2;
+            wheelBack.position.set(-4, 3, 0);
+            group.add(wheelBack);
 
-                // Point lights
-                const pointLight = new THREE.PointLight(0x00ffff, 2, 100);
-                pointLight.position.copy(light.position);
-                group.add(pointLight);
-            }
+            // Seat
+            const seatGeometry = new THREE.BoxGeometry(2, 0.5, 1);
+            const seatMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x881111,
+                roughness: 0.7
+            });
+            const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+            seat.position.set(-1, 4.5, 0);
+            group.add(seat);
 
-            // Main glow
-            const mainLight = new THREE.PointLight(0x00ff88, 3, 150);
-            mainLight.position.y = 10;
-            group.add(mainLight);
+            // Handlebars
+            const handleGeometry = new THREE.CylinderGeometry(0.15, 0.15, 3, 16);
+            const handleMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const handlebars = new THREE.Mesh(handleGeometry, handleMaterial);
+            handlebars.position.set(3, 4, 0);
+            handlebars.rotation.z = Math.PI / 6;
+            group.add(handlebars);
 
-            group.position.set(-100, 5, -100);
-            spaceship = group;
-            scene.add(spaceship);
+            // Basket
+            const basketGeometry = new THREE.BoxGeometry(2.5, 2, 1.5);
+            const basketMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffaa44,
+                roughness: 0.8
+            });
+            const basket = new THREE.Mesh(basketGeometry, basketMaterial);
+            basket.position.set(2, 3, 0);
+            group.add(basket);
+
+            // Basket light
+            const basketLight = new THREE.PointLight(0xffaa44, 2, 80);
+            basketLight.position.set(2, 3, 0);
+            group.add(basketLight);
+
+            group.position.set(-100, 0, -100);
+            bike = group;
+            scene.add(bike);
         }
 
-        function createEnemies() {
-            enemies.forEach(e => scene.remove(e));
-            enemies = [];
+        function createElliot() {
+            const group = new THREE.Group();
 
-            // MUCH FEWER and SLOWER enemies
-            const count = 1 + gameState.level * 0.5; // Start with 1, grow slowly
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1.5, 3, 1);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff9900,
+                roughness: 0.7
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 2;
+            group.add(body);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffcc99,
+                roughness: 0.6
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 4;
+            group.add(head);
+
+            group.position.set(-100, 0, -100);
+            elliot = group;
+            scene.add(elliot);
+        }
+
+        function createPolice() {
+            police.forEach(p => scene.remove(p));
+            police = [];
+
+            const count = 1 + gameState.level * 0.5;
             for (let i = 0; i < count; i++) {
                 const x = (Math.random() - 0.5) * 250;
                 const z = (Math.random() - 0.5) * 250;
@@ -446,8 +499,8 @@
                 const group = new THREE.Group();
                 const bodyGeometry = new THREE.BoxGeometry(3.5, 4, 3.5);
                 const bodyMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0xff4444,
-                    emissive: 0x990000,
+                    color: 0x0066ff,
+                    emissive: 0x003399,
                     emissiveIntensity: 0.3,
                     roughness: 0.4
                 });
@@ -461,11 +514,10 @@
                 head.castShadow = true;
                 group.add(head);
 
-                // Flashing light
                 const lightGeometry = new THREE.SphereGeometry(0.5, 16, 16);
                 const lightMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0xffff44, 
-                    emissive: 0xffff44,
+                    color: 0xff0000, 
+                    emissive: 0xff0000,
                     emissiveIntensity: 1
                 });
                 const light = new THREE.Mesh(lightGeometry, lightMaterial);
@@ -473,21 +525,19 @@
                 group.add(light);
 
                 group.position.set(x, 2, z);
-                // MUCH SLOWER speeds
                 group.userData = { 
-                    vx: (Math.random() - 0.5) * 0.4, // Reduced from ~2
-                    vz: (Math.random() - 0.5) * 0.4  // Reduced from ~2
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vz: (Math.random() - 0.5) * 0.4
                 };
                 scene.add(group);
-                enemies.push(group);
+                police.push(group);
             }
         }
 
-        function createPowerups() {
-            powerups.forEach(p => scene.remove(p));
-            powerups = [];
+        function createHearts() {
+            hearts.forEach(h => scene.remove(h));
+            hearts = [];
 
-            // MORE powerups to make it easier
             const count = 15 + gameState.level * 3;
             for (let i = 0; i < count; i++) {
                 const x = (Math.random() - 0.5) * 250;
@@ -495,8 +545,8 @@
 
                 const geometry = new THREE.OctahedronGeometry(1.2, 2);
                 const material = new THREE.MeshStandardMaterial({ 
-                    color: 0xdd44ff, 
-                    emissive: 0xdd44ff,
+                    color: 0xff1493, 
+                    emissive: 0xff1493,
                     emissiveIntensity: 0.8,
                     metalness: 0.7
                 });
@@ -505,28 +555,31 @@
                 mesh.castShadow = true;
                 mesh.userData = { bounce: Math.random() };
                 scene.add(mesh);
-                powerups.push(mesh);
+                hearts.push(mesh);
             }
         }
 
         function startGame() {
             gameRunning = true;
+            inCutscene = false;
             gameState = { score: 0, health: 3, level: gameState.level };
             
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('winScreen').classList.add('hidden');
+            document.getElementById('cutsceneScreen').classList.add('hidden');
             document.getElementById('hud').style.display = 'block';
             document.getElementById('instructions').style.display = 'block';
 
             et.position.set(0, 2, 0);
-            createEnemies();
-            createPowerups();
+            elliot.position.set(-100, 0, -100);
+            createPolice();
+            createHearts();
             updateHUD();
         }
 
         function moveET(event) {
-            if (!gameRunning) return;
+            if (!gameRunning || inCutscene) return;
             
             let x, y;
             if (event.touches) {
@@ -545,9 +598,8 @@
         }
 
         function updateGame() {
-            if (!gameRunning) return;
+            if (!gameRunning || inCutscene) return;
 
-            // Move E.T. smoothly
             if (et.userData.targetX !== undefined) {
                 const dx = et.userData.targetX - et.position.x;
                 const dz = et.userData.targetZ - et.position.z;
@@ -560,53 +612,46 @@
                 }
             }
 
-            // Move enemies VERY SLOWLY
-            enemies.forEach(enemy => {
+            police.forEach(enemy => {
                 enemy.position.x += enemy.userData.vx;
                 enemy.position.z += enemy.userData.vz;
 
                 if (Math.abs(enemy.position.x) > 175) enemy.userData.vx *= -1;
                 if (Math.abs(enemy.position.z) > 175) enemy.userData.vz *= -1;
 
-                // Chase E.T. very gently
                 const dx = et.position.x - enemy.position.x;
                 const dz = et.position.z - enemy.position.z;
                 const dist = Math.sqrt(dx * dx + dz * dz);
                 if (dist < 100) {
-                    enemy.userData.vx += (dx / dist) * 0.05; // Even slower
-                    enemy.userData.vz += (dz / dist) * 0.05; // Even slower
+                    enemy.userData.vx += (dx / dist) * 0.05;
+                    enemy.userData.vz += (dz / dist) * 0.05;
                 }
             });
 
-            // Animate powerups
-            powerups.forEach(p => {
-                p.rotation.x += 0.03;
-                p.rotation.y += 0.06;
-                p.position.y = 3 + Math.sin(Date.now() * 0.002 + p.userData.bounce) * 1.5;
+            hearts.forEach(h => {
+                h.rotation.x += 0.03;
+                h.rotation.y += 0.06;
+                h.position.y = 3 + Math.sin(Date.now() * 0.002 + h.userData.bounce) * 1.5;
             });
 
-            // Check collisions
             checkCollisions();
 
-            // Smooth camera
             camera.position.x += (et.position.x * 0.3 - camera.position.x) * 0.1;
             camera.position.z += (et.position.z + 100 - camera.position.z) * 0.1;
             camera.lookAt(et.position.x, 25, et.position.z);
         }
 
         function checkCollisions() {
-            // Powerups (easier to collect)
-            for (let i = powerups.length - 1; i >= 0; i--) {
-                const dist = et.position.distanceTo(powerups[i].position);
+            for (let i = hearts.length - 1; i >= 0; i--) {
+                const dist = et.position.distanceTo(hearts[i].position);
                 if (dist < 6) {
                     gameState.score += 100;
-                    scene.remove(powerups[i]);
-                    powerups.splice(i, 1);
+                    scene.remove(hearts[i]);
+                    hearts.splice(i, 1);
                 }
             }
 
-            // Enemies (harder to hit you)
-            enemies.forEach(enemy => {
+            police.forEach(enemy => {
                 const dist = et.position.distanceTo(enemy.position);
                 if (dist < 7) {
                     gameState.health--;
@@ -617,15 +662,76 @@
                 }
             });
 
-            // Spaceship (easier to reach)
-            const distToShip = et.position.distanceTo(spaceship.position);
-            if (distToShip < 20) {
+            const distToBike = et.position.distanceTo(bike.position);
+            if (distToBike < 20) {
+                startCutscene();
+            }
+        }
+
+        let cutsceneTime = 0;
+        function startCutscene() {
+            gameRunning = false;
+            inCutscene = true;
+            cutsceneTime = 0;
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('cutsceneScreen').classList.remove('hidden');
+        }
+
+        function updateCutscene() {
+            if (!inCutscene) return;
+
+            cutsceneTime += 0.016;
+
+            // Elliot gets on bike
+            if (cutsceneTime < 2) {
+                elliot.position.copy(bike.position);
+                elliot.position.y = 4.5;
+            }
+            // E.T. moves to bike
+            else if (cutsceneTime < 4) {
+                const t = (cutsceneTime - 2) / 2;
+                et.position.x = et.position.x + (bike.position.x - et.position.x) * t;
+                et.position.z = et.position.z + (bike.position.z - et.position.z) * t;
+                et.position.y = 2 + t * 1;
+            }
+            // Elliot picks up E.T.
+            else if (cutsceneTime < 6) {
+                const t = (cutsceneTime - 4) / 2;
+                et.position.copy(bike.position);
+                et.position.y = 4 + t * 1;
+                et.rotation.x += 0.02;
+            }
+            // E.T. goes in basket
+            else if (cutsceneTime < 8) {
+                const t = (cutsceneTime - 6) / 2;
+                et.position.x = bike.position.x + (1 - t) * 2;
+                et.position.y = bike.position.y + 3.5 - t * 2;
+                et.position.z = bike.position.z;
+            }
+            // Bike flies up
+            else if (cutsceneTime < 12) {
+                const t = (cutsceneTime - 8) / 4;
+                bike.position.y = t * 100;
+                camera.position.y = 50 + t * 50;
+                camera.position.z = 100 - t * 50;
+            }
+            // Flying to moon
+            else if (cutsceneTime < 16) {
+                const t = (cutsceneTime - 12) / 4;
+                bike.position.x += t * 50;
+                bike.position.z -= t * 150;
+                camera.position.x += t * 30;
+                camera.position.z -= t * 100;
+            }
+            else {
                 winLevel();
             }
         }
 
         function gameOver() {
             gameRunning = false;
+            inCutscene = false;
             document.getElementById('hud').style.display = 'none';
             document.getElementById('instructions').style.display = 'none';
             document.getElementById('gameOverScreen').classList.remove('hidden');
@@ -634,15 +740,12 @@
 
         function winLevel() {
             gameRunning = false;
+            inCutscene = false;
+            document.getElementById('cutsceneScreen').classList.add('hidden');
             document.getElementById('hud').style.display = 'none';
             document.getElementById('instructions').style.display = 'none';
             document.getElementById('winScreen').classList.remove('hidden');
             document.getElementById('winScore').textContent = gameState.score;
-        }
-
-        function nextLevel() {
-            gameState.level++;
-            startGame();
         }
 
         function updateHUD() {
@@ -654,6 +757,7 @@
         function animate() {
             requestAnimationFrame(animate);
             updateGame();
+            updateCutscene();
             if (gameRunning) updateHUD();
             renderer.render(scene, camera);
         }
