@@ -91,6 +91,8 @@
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
             text-transform: uppercase;
             letter-spacing: 2px;
+            z-index: 101;
+            position: relative;
         }
         button:hover {
             background: linear-gradient(135deg, #00ffcc 0%, #00ff88 100%);
@@ -114,6 +116,7 @@
             display: none;
             box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
             min-width: 250px;
+            z-index: 50;
         }
         .hud-line {
             margin: 10px 0;
@@ -145,6 +148,7 @@
             display: none;
             box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
             line-height: 1.6;
+            z-index: 50;
         }
         #winScreen h1 {
             color: #ffff00;
@@ -163,17 +167,17 @@
                 <p>Help E.T. reach the spaceship!</p>
                 <p>Collect purple crystals for points</p>
                 <p>Red enemy cars are slow and easy to avoid</p>
-                <button id="startBtn">START GAME</button>
+                <button id="startBtn" onclick="startGame()">START GAME</button>
             </div>
             <div id="gameOverScreen" class="hidden">
                 <h1>💔 GAME OVER</h1>
                 <p>Final Score: <span id="finalScore">0</span></p>
-                <button id="restartBtn">PLAY AGAIN</button>
+                <button id="restartBtn" onclick="startGame()">PLAY AGAIN</button>
             </div>
             <div id="winScreen" class="hidden">
                 <h1>🎉 YOU WIN! 🎉</h1>
                 <p>Score: <span id="winScore">0</span></p>
-                <button id="nextBtn">NEXT LEVEL</button>
+                <button id="nextBtn" onclick="nextLevel()">NEXT LEVEL</button>
             </div>
             <div id="hud">
                 <div class="hud-line">
@@ -279,10 +283,7 @@
             // Create powerups
             createPowerups();
 
-            // Event listeners
-            document.getElementById('startBtn').addEventListener('click', startGame);
-            document.getElementById('restartBtn').addEventListener('click', startGame);
-            document.getElementById('nextBtn').addEventListener('click', nextLevel);
+            // Game listeners
             document.addEventListener('click', moveET);
             document.addEventListener('touchstart', moveET);
             window.addEventListener('resize', onWindowResize);
