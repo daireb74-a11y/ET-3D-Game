@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: #000;
             display: flex;
             justify-content: center;
@@ -23,7 +23,7 @@
             width: 100vw;
             height: 100vh;
             position: relative;
-            background: linear-gradient(180deg, #001a4d 0%, #0d0d1a 100%);
+            background: linear-gradient(180deg, #0a1e4d 0%, #1a0033 50%, #0d1a2d 100%);
             overflow: hidden;
         }
         canvas {
@@ -48,7 +48,7 @@
             align-items: center;
             flex-direction: column;
             text-align: center;
-            background: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(180deg, rgba(10, 30, 77, 0.95) 0%, rgba(26, 0, 51, 0.95) 100%);
             pointer-events: auto;
             z-index: 100;
         }
@@ -56,64 +56,101 @@
             display: none !important;
         }
         h1 {
-            font-size: 3em;
+            font-size: 4em;
             margin-bottom: 30px;
-            color: #00ff00;
-            text-shadow: 0 0 20px #00ff00;
+            background: linear-gradient(135deg, #00ff88 0%, #00ffcc 50%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            font-weight: bold;
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5)); }
+            50% { filter: drop-shadow(0 0 30px rgba(0, 255, 136, 1)); }
         }
         p {
-            font-size: 1.2em;
+            font-size: 1.3em;
             margin: 15px 0;
-            color: #00ff00;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
         }
         button {
-            padding: 15px 40px;
-            font-size: 1.2em;
-            background: #00ff00;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ffcc 100%);
             color: #000;
-            border: none;
-            border-radius: 8px;
+            border: 3px solid #00ff88;
+            border-radius: 12px;
             cursor: pointer;
-            margin: 10px;
+            margin: 15px;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         button:hover {
-            background: #00cc00;
+            background: linear-gradient(135deg, #00ffcc 0%, #00ff88 100%);
             transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.9);
         }
         button:active {
             transform: scale(0.95);
         }
         #hud {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 1.3em;
-            color: #00ff00;
-            background: rgba(0, 30, 0, 0.8);
-            padding: 20px;
-            border: 2px solid #00ff00;
-            border-radius: 8px;
+            top: 30px;
+            left: 30px;
+            font-size: 1.4em;
+            color: #00ffcc;
+            background: linear-gradient(135deg, rgba(0, 50, 30, 0.9) 0%, rgba(0, 30, 50, 0.9) 100%);
+            padding: 25px 35px;
+            border: 3px solid #00ff88;
+            border-radius: 12px;
             pointer-events: auto;
             display: none;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            min-width: 250px;
         }
         .hud-line {
-            margin: 8px 0;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        .hud-label {
+            color: #00ff88;
+        }
+        .hud-value {
+            color: #00ffcc;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: right;
         }
         #instructions {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0, 30, 0, 0.8);
-            padding: 15px;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            font-size: 1em;
-            border-radius: 8px;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, rgba(0, 50, 30, 0.9) 0%, rgba(0, 30, 50, 0.9) 100%);
+            padding: 20px;
+            border: 3px solid #00ff88;
+            color: #00ffcc;
+            font-size: 1.1em;
+            border-radius: 12px;
             pointer-events: auto;
             display: none;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            line-height: 1.6;
+        }
+        #winScreen h1 {
+            color: #ffff00;
+        }
+        #gameOverScreen h1 {
+            color: #ff4444;
         }
     </style>
 </head>
@@ -122,28 +159,38 @@
         <canvas id="gameCanvas"></canvas>
         <div id="ui">
             <div id="startScreen">
-                <h1>E.T. ESCAPE</h1>
+                <h1>🚀 E.T. ESCAPE 👽</h1>
                 <p>Help E.T. reach the spaceship!</p>
-                <p>Avoid FBI agents and collect power-ups</p>
+                <p>Collect purple crystals for points</p>
+                <p>Red enemy cars are slow and easy to avoid</p>
                 <button id="startBtn">START GAME</button>
             </div>
             <div id="gameOverScreen" class="hidden">
-                <h1>GAME OVER</h1>
+                <h1>💔 GAME OVER</h1>
                 <p>Final Score: <span id="finalScore">0</span></p>
                 <button id="restartBtn">PLAY AGAIN</button>
             </div>
             <div id="winScreen" class="hidden">
-                <h1>YOU WIN!</h1>
+                <h1>🎉 YOU WIN! 🎉</h1>
                 <p>Score: <span id="winScore">0</span></p>
                 <button id="nextBtn">NEXT LEVEL</button>
             </div>
             <div id="hud">
-                <div class="hud-line">Score: <span id="score">0</span></div>
-                <div class="hud-line">Health: <span id="health">3</span></div>
-                <div class="hud-line">Level: <span id="level">1</span></div>
+                <div class="hud-line">
+                    <span class="hud-label">💰 SCORE</span>
+                    <span class="hud-value" id="score">0</span>
+                </div>
+                <div class="hud-line">
+                    <span class="hud-label">❤️ HEALTH</span>
+                    <span class="hud-value" id="health">3</span>
+                </div>
+                <div class="hud-line">
+                    <span class="hud-label">⭐ LEVEL</span>
+                    <span class="hud-value" id="level">1</span>
+                </div>
             </div>
             <div id="instructions">
-                Click/Tap to move | Reach green spaceship | Avoid red enemies | Collect purple power-ups
+                🖱️ CLICK/TAP to move | 🚀 Reach GREEN spaceship | 💜 Collect PURPLE crystals | 🚗 AVOID RED cars
             </div>
         </div>
     </div>
@@ -162,39 +209,63 @@
         };
 
         function init() {
-            // Scene
+            // Scene with beautiful gradient
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x001a4d);
-            scene.fog = new THREE.Fog(0x001a4d, 400, 1000);
+            scene.background = new THREE.Color(0x0a1e4d);
+            scene.fog = new THREE.Fog(0x0a1e4d, 500, 1200);
 
             // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 40, 80);
+            camera.position.set(0, 50, 100);
 
-            // Renderer
+            // Renderer with high quality
             const canvas = document.getElementById('gameCanvas');
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFShadowShadowMap;
+            renderer.setPixelRatio(window.devicePixelRatio);
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            // Better lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(100, 100, 100);
+            const directionalLight = new THREE.DirectionalLight(0x88ddff, 1);
+            directionalLight.position.set(150, 200, 150);
             directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.mapSize.width = 4096;
+            directionalLight.shadow.mapSize.height = 4096;
+            directionalLight.shadow.camera.far = 800;
             scene.add(directionalLight);
 
-            // Ground
-            const groundGeometry = new THREE.PlaneGeometry(300, 300);
-            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5a2d });
+            // Add stars
+            addStarfield();
+
+            // Beautiful ground with gradient
+            const groundGeometry = new THREE.PlaneGeometry(400, 400);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1a3a2d,
+                roughness: 0.8,
+                metalness: 0.1
+            });
             const ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
             scene.add(ground);
+
+            // Add glow effect ground
+            const glowGeometry = new THREE.PlaneGeometry(400, 400);
+            const glowMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00ff88,
+                roughness: 1,
+                metalness: 0,
+                emissive: 0x00ff88,
+                emissiveIntensity: 0.15
+            });
+            const glowGround = new THREE.Mesh(glowGeometry, glowMaterial);
+            glowGround.rotation.x = -Math.PI / 2;
+            glowGround.position.y = 0.01;
+            scene.add(glowGround);
 
             // Create E.T.
             createET();
@@ -202,7 +273,7 @@
             // Create Spaceship
             createSpaceship();
 
-            // Create initial enemies
+            // Create initial enemies (MUCH SLOWER)
             createEnemies();
 
             // Create powerups
@@ -219,33 +290,86 @@
             animate();
         }
 
+        function addStarfield() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({ 
+                color: 0xffffff, 
+                size: 2,
+                sizeAttenuation: true
+            });
+
+            const starPositions = new Float32Array();
+            for (let i = 0; i < 1500; i++) {
+                starPositions[i * 3] = (Math.random() - 0.5) * 2000;
+                starPositions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+                starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+            const starField = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starField);
+        }
+
         function createET() {
             const group = new THREE.Group();
 
-            // Body
-            const bodyGeometry = new THREE.SphereGeometry(2, 32, 32);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xaa6600 });
+            // Body with beautiful material
+            const bodyGeometry = new THREE.SphereGeometry(2.5, 64, 64);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xcc8844,
+                roughness: 0.6,
+                metalness: 0,
+                emissive: 0x664422,
+                emissiveIntensity: 0.2
+            });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             body.castShadow = true;
             body.receiveShadow = true;
             group.add(body);
 
             // Head
-            const headGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const headGeometry = new THREE.SphereGeometry(2, 64, 64);
             const head = new THREE.Mesh(headGeometry, bodyMaterial);
-            head.position.y = 3;
+            head.position.y = 3.5;
             head.castShadow = true;
             group.add(head);
 
-            // Eyes
-            const eyeGeometry = new THREE.SphereGeometry(0.6, 16, 16);
-            const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000 });
+            // Glowing eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff3333, 
+                emissive: 0xff6666,
+                emissiveIntensity: 1,
+                metalness: 0.8
+            });
             const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(-0.7, 3.8, 1.5);
+            leftEye.position.set(-0.8, 4.2, 1.8);
             const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.7, 3.8, 1.5);
+            rightEye.position.set(0.8, 4.2, 1.8);
+            
+            const eyeLight1 = new THREE.PointLight(0xff3333, 1, 50);
+            eyeLight1.position.copy(leftEye.position);
+            const eyeLight2 = new THREE.PointLight(0xff3333, 1, 50);
+            eyeLight2.position.copy(rightEye.position);
+            
             group.add(leftEye);
             group.add(rightEye);
+            group.add(eyeLight1);
+            group.add(eyeLight2);
+
+            // Glowing finger
+            const fingerGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+            const fingerMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffff44, 
+                emissive: 0xffff88,
+                emissiveIntensity: 1
+            });
+            const finger = new THREE.Mesh(fingerGeometry, fingerMaterial);
+            finger.position.set(3, 0.5, 0);
+            const fingerLight = new THREE.PointLight(0xffff44, 2, 60);
+            fingerLight.position.copy(finger.position);
+            group.add(finger);
+            group.add(fingerLight);
 
             group.position.set(0, 2, 0);
             et = group;
@@ -256,19 +380,54 @@
             const group = new THREE.Group();
 
             // Cone body
-            const bodyGeometry = new THREE.ConeGeometry(6, 20, 32);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00aa00 });
+            const bodyGeometry = new THREE.ConeGeometry(7, 25, 64);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00ff88, 
+                emissive: 0x00cc66,
+                emissiveIntensity: 0.5,
+                metalness: 0.7,
+                roughness: 0.3
+            });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             body.castShadow = true;
             body.receiveShadow = true;
             group.add(body);
 
-            // Add glow
-            const pointLight = new THREE.PointLight(0x00ff00, 2, 100);
-            pointLight.position.y = 5;
-            group.add(pointLight);
+            // Bottom platform
+            const bottomGeometry = new THREE.CylinderGeometry(7, 7, 2, 64);
+            const bottom = new THREE.Mesh(bottomGeometry, bodyMaterial);
+            bottom.position.y = -13;
+            bottom.castShadow = true;
+            group.add(bottom);
 
-            group.position.set(-80, 5, -80);
+            // Glowing lights
+            const lightCount = 8;
+            for (let i = 0; i < lightCount; i++) {
+                const angle = (i / lightCount) * Math.PI * 2;
+                const radius = 8;
+                
+                const lightGeometry = new THREE.SphereGeometry(1, 32, 32);
+                const lightMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x00ffff, 
+                    emissive: 0x00ffff,
+                    emissiveIntensity: 1
+                });
+                const light = new THREE.Mesh(lightGeometry, lightMaterial);
+                light.position.set(Math.cos(angle) * radius, -5, Math.sin(angle) * radius);
+                group.add(light);
+
+                // Point lights
+                const pointLight = new THREE.PointLight(0x00ffff, 2, 100);
+                pointLight.position.copy(light.position);
+                group.add(pointLight);
+            }
+
+            // Main glow
+            const mainLight = new THREE.PointLight(0x00ff88, 3, 150);
+            mainLight.position.y = 10;
+            group.add(mainLight);
+
+            group.position.set(-100, 5, -100);
             spaceship = group;
             scene.add(spaceship);
         }
@@ -277,25 +436,47 @@
             enemies.forEach(e => scene.remove(e));
             enemies = [];
 
-            const count = 3 + gameState.level;
+            // MUCH FEWER and SLOWER enemies
+            const count = 1 + gameState.level * 0.5; // Start with 1, grow slowly
             for (let i = 0; i < count; i++) {
-                const x = (Math.random() - 0.5) * 200;
-                const z = (Math.random() - 0.5) * 200;
+                const x = (Math.random() - 0.5) * 250;
+                const z = (Math.random() - 0.5) * 250;
 
                 const group = new THREE.Group();
-                const bodyGeometry = new THREE.CubeGeometry(3, 4, 3);
-                const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                const bodyGeometry = new THREE.BoxGeometry(3.5, 4, 3.5);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xff4444,
+                    emissive: 0x990000,
+                    emissiveIntensity: 0.3,
+                    roughness: 0.4
+                });
                 const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
                 body.castShadow = true;
                 group.add(body);
 
-                const headGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+                const headGeometry = new THREE.SphereGeometry(1.3, 32, 32);
                 const head = new THREE.Mesh(headGeometry, bodyMaterial);
-                head.position.y = 3;
+                head.position.y = 3.5;
+                head.castShadow = true;
                 group.add(head);
 
+                // Flashing light
+                const lightGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+                const lightMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xffff44, 
+                    emissive: 0xffff44,
+                    emissiveIntensity: 1
+                });
+                const light = new THREE.Mesh(lightGeometry, lightMaterial);
+                light.position.set(0, 5, 1.5);
+                group.add(light);
+
                 group.position.set(x, 2, z);
-                group.userData = { vx: (Math.random() - 0.5) * 2, vz: (Math.random() - 0.5) * 2 };
+                // MUCH SLOWER speeds
+                group.userData = { 
+                    vx: (Math.random() - 0.5) * 0.4, // Reduced from ~2
+                    vz: (Math.random() - 0.5) * 0.4  // Reduced from ~2
+                };
                 scene.add(group);
                 enemies.push(group);
             }
@@ -305,16 +486,23 @@
             powerups.forEach(p => scene.remove(p));
             powerups = [];
 
-            const count = 8 + gameState.level * 2;
+            // MORE powerups to make it easier
+            const count = 15 + gameState.level * 3;
             for (let i = 0; i < count; i++) {
-                const x = (Math.random() - 0.5) * 200;
-                const z = (Math.random() - 0.5) * 200;
+                const x = (Math.random() - 0.5) * 250;
+                const z = (Math.random() - 0.5) * 250;
 
-                const geometry = new THREE.OctahedronGeometry(1, 0);
-                const material = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff });
+                const geometry = new THREE.OctahedronGeometry(1.2, 2);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0xdd44ff, 
+                    emissive: 0xdd44ff,
+                    emissiveIntensity: 0.8,
+                    metalness: 0.7
+                });
                 const mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(x, 2, z);
+                mesh.position.set(x, 3, z);
                 mesh.castShadow = true;
+                mesh.userData = { bounce: Math.random() };
                 scene.add(mesh);
                 powerups.push(mesh);
             }
@@ -348,8 +536,8 @@
                 y = event.clientY;
             }
 
-            const targetX = (x / window.innerWidth - 0.5) * 300;
-            const targetZ = (y / window.innerHeight - 0.5) * 300;
+            const targetX = (x / window.innerWidth - 0.5) * 350;
+            const targetZ = (y / window.innerHeight - 0.5) * 350;
 
             et.userData.targetX = targetX;
             et.userData.targetZ = targetZ;
@@ -358,67 +546,68 @@
         function updateGame() {
             if (!gameRunning) return;
 
-            // Move E.T.
+            // Move E.T. smoothly
             if (et.userData.targetX !== undefined) {
                 const dx = et.userData.targetX - et.position.x;
                 const dz = et.userData.targetZ - et.position.z;
                 const dist = Math.sqrt(dx * dx + dz * dz);
                 
                 if (dist > 2) {
-                    et.position.x += (dx / dist) * 1.5;
-                    et.position.z += (dz / dist) * 1.5;
+                    et.position.x += (dx / dist) * 1.8;
+                    et.position.z += (dz / dist) * 1.8;
                     et.rotation.y = Math.atan2(dx, dz);
                 }
             }
 
-            // Move enemies
+            // Move enemies VERY SLOWLY
             enemies.forEach(enemy => {
                 enemy.position.x += enemy.userData.vx;
                 enemy.position.z += enemy.userData.vz;
 
-                if (Math.abs(enemy.position.x) > 150) enemy.userData.vx *= -1;
-                if (Math.abs(enemy.position.z) > 150) enemy.userData.vz *= -1;
+                if (Math.abs(enemy.position.x) > 175) enemy.userData.vx *= -1;
+                if (Math.abs(enemy.position.z) > 175) enemy.userData.vz *= -1;
 
-                // Chase E.T.
+                // Chase E.T. very gently
                 const dx = et.position.x - enemy.position.x;
                 const dz = et.position.z - enemy.position.z;
                 const dist = Math.sqrt(dx * dx + dz * dz);
-                if (dist < 80) {
-                    enemy.userData.vx += (dx / dist) * 0.1;
-                    enemy.userData.vz += (dz / dist) * 0.1;
+                if (dist < 100) {
+                    enemy.userData.vx += (dx / dist) * 0.05; // Even slower
+                    enemy.userData.vz += (dz / dist) * 0.05; // Even slower
                 }
+            });
 
-                // Rotate powerups
-                powerups.forEach(p => {
-                    p.rotation.x += 0.05;
-                    p.rotation.y += 0.1;
-                });
+            // Animate powerups
+            powerups.forEach(p => {
+                p.rotation.x += 0.03;
+                p.rotation.y += 0.06;
+                p.position.y = 3 + Math.sin(Date.now() * 0.002 + p.userData.bounce) * 1.5;
             });
 
             // Check collisions
             checkCollisions();
 
-            // Update camera
-            camera.position.x = et.position.x * 0.5;
-            camera.position.z = et.position.z + 80;
-            camera.lookAt(et.position.x, 20, et.position.z);
+            // Smooth camera
+            camera.position.x += (et.position.x * 0.3 - camera.position.x) * 0.1;
+            camera.position.z += (et.position.z + 100 - camera.position.z) * 0.1;
+            camera.lookAt(et.position.x, 25, et.position.z);
         }
 
         function checkCollisions() {
-            // Powerups
+            // Powerups (easier to collect)
             for (let i = powerups.length - 1; i >= 0; i--) {
                 const dist = et.position.distanceTo(powerups[i].position);
-                if (dist < 5) {
-                    gameState.score += 50;
+                if (dist < 6) {
+                    gameState.score += 100;
                     scene.remove(powerups[i]);
                     powerups.splice(i, 1);
                 }
             }
 
-            // Enemies
+            // Enemies (harder to hit you)
             enemies.forEach(enemy => {
                 const dist = et.position.distanceTo(enemy.position);
-                if (dist < 6) {
+                if (dist < 7) {
                     gameState.health--;
                     et.position.set(0, 2, 0);
                     if (gameState.health <= 0) {
@@ -427,9 +616,9 @@
                 }
             });
 
-            // Spaceship
+            // Spaceship (easier to reach)
             const distToShip = et.position.distanceTo(spaceship.position);
-            if (distToShip < 15) {
+            if (distToShip < 20) {
                 winLevel();
             }
         }
