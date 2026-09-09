@@ -3,49 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E.T. Escape Game</title>
-    <link rel="stylesheet" href="style.css">
+    <title>E.T. Escape - 3D Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, #001a4d 0%, #0d0d1a 50%, #1a0000 100%);
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #startScreen, #gameOverScreen, #winScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            z-index: 100;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        #startScreen.hidden, #gameOverScreen.hidden, #winScreen.hidden {
+            display: none;
+        }
+
+        #startScreen h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00;
+            animation: glow 2s infinite;
+            letter-spacing: 3px;
+        }
+
+        #startScreen p {
+            font-size: 1.3em;
+            margin: 15px 0;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .btn {
+            padding: 18px 50px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+            border: 3px solid #00ff00;
+            color: #000;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 15px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        #hud {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            color: #00ff00;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff00;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 30, 0, 0.7);
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            color: #00ff00;
+            font-size: 1em;
+            background: rgba(0, 30, 0, 0.7);
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            line-height: 1.6;
+            z-index: 50;
+        }
+
+        #instructions p {
+            margin: 5px 0;
+        }
+
+        #gameOverScreen h1, #winScreen h1 {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px #ff0000;
+            animation: glow 2s infinite;
+        }
+
+        #gameOverScreen p, #winScreen p {
+            font-size: 1.2em;
+            margin: 15px 0;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        #winScreen h1 {
+            text-shadow: 0 0 30px #ffff00;
+            color: #ffff00;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hud-item {
+            margin: 0 30px;
+        }
+
+        .hud-label {
+            color: #00aa00;
+            font-size: 0.9em;
+        }
+
+        .hud-value {
+            color: #00ff00;
+            font-size: 1.5em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            #startScreen h1 {
+                font-size: 2.5em;
+            }
+            
+            #hud {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                font-size: 1em;
+            }
+            
+            .hud-item {
+                margin: 0;
+            }
+            
+            #instructions {
+                font-size: 0.9em;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="gameContainer">
-        <div id="startScreen" class="screen active">
-            <h1>🚲 E.T. ESCAPE 👽</h1>
-            <p>Help E.T. reach Elliot's bike!</p>
-            <p>Avoid the FBI agents and collect power-ups!</p>
-            <button onclick="startGame()" class="btn">START GAME</button>
-        </div>
-
-        <div id="gameScreen" class="screen">
-            <div id="gameCanvas"></div>
-            <div id="hud">
-                <div>Score: <span id="score">0</span></div>
-                <div>Health: <span id="health">3</span></div>
-                <div>Level: <span id="level">1</span></div>
+        <canvas id="canvas"></canvas>
+        
+        <div id="ui">
+            <div id="startScreen">
+                <h1>E.T. ESCAPE</h1>
+                <p>Help E.T. escape and reach home!</p>
+                <p>Evade the FBI and collect power-ups</p>
+                <button onclick="startGame()" class="btn">Start Game</button>
             </div>
-        </div>
 
-        <div id="gameOverScreen" class="screen">
-            <h1>GAME OVER!</h1>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <button onclick="startGame()" class="btn">PLAY AGAIN</button>
-            <button onclick="backToMenu()" class="btn">MAIN MENU</button>
-        </div>
+            <div id="gameOverScreen" class="hidden">
+                <h1>GAME OVER</h1>
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <button onclick="startGame()" class="btn">Play Again</button>
+                <button onclick="location.reload()" class="btn">Main Menu</button>
+            </div>
 
-        <div id="winScreen" class="screen">
-            <h1>🎉 YOU WIN! 🎉</h1>
-            <p>E.T. reached the bike!</p>
-            <p>Score: <span id="winScore">0</span></p>
-            <button onclick="nextLevel()" class="btn">NEXT LEVEL</button>
-            <button onclick="backToMenu()" class="btn">MAIN MENU</button>
-        </div>
+            <div id="winScreen" class="hidden">
+                <h1>🚀 YOU WIN! 🚀</h1>
+                <p>E.T. reached home!</p>
+                <p>Score: <span id="winScore">0</span></p>
+                <button onclick="nextLevel()" class="btn">Next Level</button>
+                <button onclick="location.reload()" class="btn">Main Menu</button>
+            </div>
 
-        <div id="controlsInfo">
-            <p>📱 Tap/Click to move E.T. towards that spot</p>
-            <p>🎯 Collect ⭐ stars for points</p>
-            <p>⚠️ Avoid 🚗 FBI agents!</p>
+            <div id="hud" style="display: none;">
+                <div class="hud-item">
+                    <div class="hud-label">SCORE</div>
+                    <div class="hud-value" id="scoreValue">0</div>
+                </div>
+                <div class="hud-item">
+                    <div class="hud-label">HEALTH</div>
+                    <div class="hud-value" id="healthValue">3</div>
+                </div>
+                <div class="hud-item">
+                    <div class="hud-label">LEVEL</div>
+                    <div class="hud-value" id="levelValue">1</div>
+                </div>
+            </div>
+
+            <div id="instructions">
+                <p>💻 MOUSE/TOUCH: Click/tap to aim | ARROW KEYS: Move | SPACE: Shoot</p>
+                <p>🎯 Collect power-ups ⭐ | 🚗 Avoid FBI agents | 🚀 Reach the spaceship!</p>
+            </div>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game3d.js"></script>
 </body>
 </html>
