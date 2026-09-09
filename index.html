@@ -10,31 +10,27 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             color: white;
-            overflow: hidden;
         }
-
         #gameContainer {
             width: 100vw;
             height: 100vh;
             position: relative;
-            background: linear-gradient(180deg, #001a4d 0%, #0d0d1a 50%, #1a0000 100%);
+            background: linear-gradient(180deg, #001a4d 0%, #0d0d1a 100%);
+            overflow: hidden;
         }
-
-        #canvas {
+        canvas {
             display: block;
             width: 100%;
             height: 100%;
         }
-
         #ui {
             position: absolute;
             top: 0;
@@ -43,7 +39,6 @@
             height: 100%;
             pointer-events: none;
         }
-
         #startScreen, #gameOverScreen, #winScreen {
             position: absolute;
             width: 100%;
@@ -53,211 +48,433 @@
             align-items: center;
             flex-direction: column;
             text-align: center;
-            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
             pointer-events: auto;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
         }
-
         #startScreen.hidden, #gameOverScreen.hidden, #winScreen.hidden {
-            display: none;
+            display: none !important;
         }
-
-        #startScreen h1 {
-            font-size: 4em;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00;
-            animation: glow 2s infinite;
-            letter-spacing: 3px;
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
         }
-
-        #startScreen p {
-            font-size: 1.3em;
+        p {
+            font-size: 1.2em;
             margin: 15px 0;
             color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
         }
-
-        .btn {
-            padding: 18px 50px;
-            font-size: 1.3em;
-            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
-            border: 3px solid #00ff00;
+        button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: #00ff00;
             color: #000;
-            border-radius: 10px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 15px;
-            transition: all 0.3s;
+            margin: 10px;
             font-weight: bold;
-            box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            transition: all 0.3s;
         }
-
-        .btn:hover {
+        button:hover {
+            background: #00cc00;
             transform: scale(1.1);
-            box-shadow: 0 0 40px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.5);
         }
-
-        .btn:active {
+        button:active {
             transform: scale(0.95);
         }
-
         #hud {
             position: absolute;
-            top: 30px;
-            left: 30px;
-            right: 30px;
+            top: 20px;
+            left: 20px;
+            font-size: 1.3em;
             color: #00ff00;
-            font-size: 1.2em;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ff00;
-            z-index: 50;
-            display: flex;
-            justify-content: space-between;
-            background: rgba(0, 30, 0, 0.7);
+            background: rgba(0, 30, 0, 0.8);
             padding: 20px;
             border: 2px solid #00ff00;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            border-radius: 8px;
+            pointer-events: auto;
+            display: none;
         }
-
+        .hud-line {
+            margin: 8px 0;
+        }
         #instructions {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
-            right: 30px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 30, 0, 0.8);
+            padding: 15px;
+            border: 2px solid #00ff00;
             color: #00ff00;
             font-size: 1em;
-            background: rgba(0, 30, 0, 0.7);
-            padding: 20px;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-            line-height: 1.6;
-            z-index: 50;
-        }
-
-        #instructions p {
-            margin: 5px 0;
-        }
-
-        #gameOverScreen h1, #winScreen h1 {
-            font-size: 3.5em;
-            margin-bottom: 30px;
-            text-shadow: 0 0 30px #ff0000;
-            animation: glow 2s infinite;
-        }
-
-        #gameOverScreen p, #winScreen p {
-            font-size: 1.2em;
-            margin: 15px 0;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
-        }
-
-        #winScreen h1 {
-            text-shadow: 0 0 30px #ffff00;
-            color: #ffff00;
-        }
-
-        @keyframes glow {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .hud-item {
-            margin: 0 30px;
-        }
-
-        .hud-label {
-            color: #00aa00;
-            font-size: 0.9em;
-        }
-
-        .hud-value {
-            color: #00ff00;
-            font-size: 1.5em;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            #startScreen h1 {
-                font-size: 2.5em;
-            }
-            
-            #hud {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-                font-size: 1em;
-            }
-            
-            .hud-item {
-                margin: 0;
-            }
-            
-            #instructions {
-                font-size: 0.9em;
-                padding: 15px;
-            }
+            border-radius: 8px;
+            pointer-events: auto;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="canvas"></canvas>
-        
+        <canvas id="gameCanvas"></canvas>
         <div id="ui">
             <div id="startScreen">
                 <h1>E.T. ESCAPE</h1>
-                <p>Help E.T. escape and reach home!</p>
-                <p>Evade the FBI and collect power-ups</p>
-                <button onclick="startGame()" class="btn">Start Game</button>
+                <p>Help E.T. reach the spaceship!</p>
+                <p>Avoid FBI agents and collect power-ups</p>
+                <button id="startBtn">START GAME</button>
             </div>
-
             <div id="gameOverScreen" class="hidden">
                 <h1>GAME OVER</h1>
                 <p>Final Score: <span id="finalScore">0</span></p>
-                <button onclick="startGame()" class="btn">Play Again</button>
-                <button onclick="location.reload()" class="btn">Main Menu</button>
+                <button id="restartBtn">PLAY AGAIN</button>
             </div>
-
             <div id="winScreen" class="hidden">
-                <h1>🚀 YOU WIN! 🚀</h1>
-                <p>E.T. reached home!</p>
+                <h1>YOU WIN!</h1>
                 <p>Score: <span id="winScore">0</span></p>
-                <button onclick="nextLevel()" class="btn">Next Level</button>
-                <button onclick="location.reload()" class="btn">Main Menu</button>
+                <button id="nextBtn">NEXT LEVEL</button>
             </div>
-
-            <div id="hud" style="display: none;">
-                <div class="hud-item">
-                    <div class="hud-label">SCORE</div>
-                    <div class="hud-value" id="scoreValue">0</div>
-                </div>
-                <div class="hud-item">
-                    <div class="hud-label">HEALTH</div>
-                    <div class="hud-value" id="healthValue">3</div>
-                </div>
-                <div class="hud-item">
-                    <div class="hud-label">LEVEL</div>
-                    <div class="hud-value" id="levelValue">1</div>
-                </div>
+            <div id="hud">
+                <div class="hud-line">Score: <span id="score">0</span></div>
+                <div class="hud-line">Health: <span id="health">3</span></div>
+                <div class="hud-line">Level: <span id="level">1</span></div>
             </div>
-
             <div id="instructions">
-                <p>💻 MOUSE/TOUCH: Click/tap to aim | ARROW KEYS: Move | SPACE: Shoot</p>
-                <p>🎯 Collect power-ups ⭐ | 🚗 Avoid FBI agents | 🚀 Reach the spaceship!</p>
+                Click/Tap to move | Reach green spaceship | Avoid red enemies | Collect purple power-ups
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="game3d.js"></script>
+    <script>
+        let scene, camera, renderer;
+        let et, spaceship;
+        let enemies = [];
+        let powerups = [];
+        let gameRunning = false;
+        let gameState = {
+            score: 0,
+            health: 3,
+            level: 1
+        };
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x001a4d);
+            scene.fog = new THREE.Fog(0x001a4d, 400, 1000);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 40, 80);
+
+            // Renderer
+            const canvas = document.getElementById('gameCanvas');
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(100, 100, 100);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(300, 300);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5a2d });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Create E.T.
+            createET();
+
+            // Create Spaceship
+            createSpaceship();
+
+            // Create initial enemies
+            createEnemies();
+
+            // Create powerups
+            createPowerups();
+
+            // Event listeners
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('restartBtn').addEventListener('click', startGame);
+            document.getElementById('nextBtn').addEventListener('click', nextLevel);
+            document.addEventListener('click', moveET);
+            document.addEventListener('touchstart', moveET);
+            window.addEventListener('resize', onWindowResize);
+
+            animate();
+        }
+
+        function createET() {
+            const group = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.SphereGeometry(2, 32, 32);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xaa6600 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.y = 3;
+            head.castShadow = true;
+            group.add(head);
+
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000 });
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.7, 3.8, 1.5);
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.7, 3.8, 1.5);
+            group.add(leftEye);
+            group.add(rightEye);
+
+            group.position.set(0, 2, 0);
+            et = group;
+            scene.add(et);
+        }
+
+        function createSpaceship() {
+            const group = new THREE.Group();
+
+            // Cone body
+            const bodyGeometry = new THREE.ConeGeometry(6, 20, 32);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00aa00 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+
+            // Add glow
+            const pointLight = new THREE.PointLight(0x00ff00, 2, 100);
+            pointLight.position.y = 5;
+            group.add(pointLight);
+
+            group.position.set(-80, 5, -80);
+            spaceship = group;
+            scene.add(spaceship);
+        }
+
+        function createEnemies() {
+            enemies.forEach(e => scene.remove(e));
+            enemies = [];
+
+            const count = 3 + gameState.level;
+            for (let i = 0; i < count; i++) {
+                const x = (Math.random() - 0.5) * 200;
+                const z = (Math.random() - 0.5) * 200;
+
+                const group = new THREE.Group();
+                const bodyGeometry = new THREE.CubeGeometry(3, 4, 3);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.castShadow = true;
+                group.add(body);
+
+                const headGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+                const head = new THREE.Mesh(headGeometry, bodyMaterial);
+                head.position.y = 3;
+                group.add(head);
+
+                group.position.set(x, 2, z);
+                group.userData = { vx: (Math.random() - 0.5) * 2, vz: (Math.random() - 0.5) * 2 };
+                scene.add(group);
+                enemies.push(group);
+            }
+        }
+
+        function createPowerups() {
+            powerups.forEach(p => scene.remove(p));
+            powerups = [];
+
+            const count = 8 + gameState.level * 2;
+            for (let i = 0; i < count; i++) {
+                const x = (Math.random() - 0.5) * 200;
+                const z = (Math.random() - 0.5) * 200;
+
+                const geometry = new THREE.OctahedronGeometry(1, 0);
+                const material = new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0xff00ff });
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(x, 2, z);
+                mesh.castShadow = true;
+                scene.add(mesh);
+                powerups.push(mesh);
+            }
+        }
+
+        function startGame() {
+            gameRunning = true;
+            gameState = { score: 0, health: 3, level: gameState.level };
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('winScreen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'block';
+            document.getElementById('instructions').style.display = 'block';
+
+            et.position.set(0, 2, 0);
+            createEnemies();
+            createPowerups();
+            updateHUD();
+        }
+
+        function moveET(event) {
+            if (!gameRunning) return;
+            
+            let x, y;
+            if (event.touches) {
+                x = event.touches[0].clientX;
+                y = event.touches[0].clientY;
+            } else {
+                x = event.clientX;
+                y = event.clientY;
+            }
+
+            const targetX = (x / window.innerWidth - 0.5) * 300;
+            const targetZ = (y / window.innerHeight - 0.5) * 300;
+
+            et.userData.targetX = targetX;
+            et.userData.targetZ = targetZ;
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            // Move E.T.
+            if (et.userData.targetX !== undefined) {
+                const dx = et.userData.targetX - et.position.x;
+                const dz = et.userData.targetZ - et.position.z;
+                const dist = Math.sqrt(dx * dx + dz * dz);
+                
+                if (dist > 2) {
+                    et.position.x += (dx / dist) * 1.5;
+                    et.position.z += (dz / dist) * 1.5;
+                    et.rotation.y = Math.atan2(dx, dz);
+                }
+            }
+
+            // Move enemies
+            enemies.forEach(enemy => {
+                enemy.position.x += enemy.userData.vx;
+                enemy.position.z += enemy.userData.vz;
+
+                if (Math.abs(enemy.position.x) > 150) enemy.userData.vx *= -1;
+                if (Math.abs(enemy.position.z) > 150) enemy.userData.vz *= -1;
+
+                // Chase E.T.
+                const dx = et.position.x - enemy.position.x;
+                const dz = et.position.z - enemy.position.z;
+                const dist = Math.sqrt(dx * dx + dz * dz);
+                if (dist < 80) {
+                    enemy.userData.vx += (dx / dist) * 0.1;
+                    enemy.userData.vz += (dz / dist) * 0.1;
+                }
+
+                // Rotate powerups
+                powerups.forEach(p => {
+                    p.rotation.x += 0.05;
+                    p.rotation.y += 0.1;
+                });
+            });
+
+            // Check collisions
+            checkCollisions();
+
+            // Update camera
+            camera.position.x = et.position.x * 0.5;
+            camera.position.z = et.position.z + 80;
+            camera.lookAt(et.position.x, 20, et.position.z);
+        }
+
+        function checkCollisions() {
+            // Powerups
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                const dist = et.position.distanceTo(powerups[i].position);
+                if (dist < 5) {
+                    gameState.score += 50;
+                    scene.remove(powerups[i]);
+                    powerups.splice(i, 1);
+                }
+            }
+
+            // Enemies
+            enemies.forEach(enemy => {
+                const dist = et.position.distanceTo(enemy.position);
+                if (dist < 6) {
+                    gameState.health--;
+                    et.position.set(0, 2, 0);
+                    if (gameState.health <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+
+            // Spaceship
+            const distToShip = et.position.distanceTo(spaceship.position);
+            if (distToShip < 15) {
+                winLevel();
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = gameState.score;
+        }
+
+        function winLevel() {
+            gameRunning = false;
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('winScreen').classList.remove('hidden');
+            document.getElementById('winScore').textContent = gameState.score;
+        }
+
+        function nextLevel() {
+            gameState.level++;
+            startGame();
+        }
+
+        function updateHUD() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('health').textContent = gameState.health;
+            document.getElementById('level').textContent = gameState.level;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateGame();
+            if (gameRunning) updateHUD();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
